@@ -6,7 +6,7 @@ export MTFREE="xvfb-run python3 mtfree.py"
 eval "$WPA_CLI" | while true
 do
     read l
-    if echo "$l" | grep "SSID=Foxland" >/dev/null
+    if echo "$l" | grep "SSID=MT_FREE" >/dev/null
     then mt_free_bssid="$(echo "$l" | sed 's/^.*BSSID=//g' | cut -c 1-17)"
     fi
     if echo "$l" | grep "CTRL-EVENT-CONNECTED" >/dev/null

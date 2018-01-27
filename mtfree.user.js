@@ -60,7 +60,7 @@ scriptElem.innerHTML = "("+(function()
       else
         tries = 1;
       if(tries == max_tries)
-        alert('fail');//window.close();
+        //window.close();
     }, 1500);
   }
 }).toString()+")()";
