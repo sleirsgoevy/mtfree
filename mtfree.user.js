@@ -10,13 +10,13 @@
 var scriptElem = document.createElement('script');
 scriptElem.innerHTML = "("+(function()
 {
-  if(document.location.host == "wi-fi.ru" || document.location.host.indexOf("wi-fi") < 0)
+  if((document.location.host == "wi-fi.ru" || document.location.host.indexOf("wi-fi") < 0) && document.title != "Web Authentication Redirect")
     document.location.href = 'http://127.0.0.1:1320/';
   else if(document.location.host == "auth.wi-fi.ru")
   {
     var prev_state = -1;
     var tries = 0;
-    var max_tries = 10;
+    var max_tries = 30;
     setInterval(function()
     {
       if(tries >= max_tries)return;
@@ -53,13 +53,22 @@ scriptElem.innerHTML = "("+(function()
                 videos[i].click();
             state = 1;
           }
+          else
+          {
+            var nextBtn = document.querySelector('div.interaction_button');
+            if(nextBtn != null)
+            {
+              state = 3;
+              nextBtn.click();
+            }
+          }
         }
       }
       if(state <= prev_state)
         tries++;
       else
         tries = 1;
-      if(tries == max_tries)
+      //if(tries == max_tries)
         //window.close();
     }, 1500);
   }

@@ -10,7 +10,7 @@ def onChildExit():
 
 PROFILE_PATH = os.getcwd() + '/MT_FREE'
 
-popen = subprocess.Popen(('firefox', '--profile', PROFILE_PATH, 'http://auth.wi-fi.ru'))
+popen = subprocess.Popen(('firefox', '--profile', PROFILE_PATH, 'http://ip-address.ru'))
 
 sock = socket.socket()
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

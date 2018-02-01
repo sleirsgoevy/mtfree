@@ -14,7 +14,7 @@ do
         connected_to_bssid="$(echo "$l" | sed 's/^.*Connection to //g' | cut -c 1-17)"
         if [ "$connected_to_bssid" == "$mt_free_bssid" ]
         then
-            eval "$MTFREE"
+            bash -c "$MTFREE" &
         fi
     fi
 done
