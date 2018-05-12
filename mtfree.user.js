@@ -1,76 +1,26 @@
 // ==UserScript==
-// @name        MT_FREE
-// @namespace   auto@auth.wi-fi.ru
-// @description Automatically authenticate user on MT_FREE
-// @include     *
-// @version     1
-// @grant       none
+// @name     MT_FREE
+// @version  1
+// @grant    none
+// @include  *
 // ==/UserScript==
 
-var scriptElem = document.createElement('script');
-scriptElem.innerHTML = "("+(function()
+var interesting_nodes = ['title', 'div.c-branding-button:nth-child(2)', 'div.c-video-layer:nth-child(4) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > video:nth-child(1)', '.interaction_button'];
+
+setInterval(function()
 {
-  if((document.location.host == "wi-fi.ru" || document.location.host.indexOf("wi-fi") < 0) && document.title != "Web Authentication Redirect")
-    document.location.href = 'http://127.0.0.1:1320/';
-  else if(document.location.host == "auth.wi-fi.ru")
+  var ans = {'url': document.location.href};
+  for(var i = 0; i < interesting_nodes.length; i++)
   {
-    var prev_state = -1;
-    var tries = 0;
-    var max_tries = 30;
-    setInterval(function()
+    var it = document.querySelector(interesting_nodes[i]);
+    if(it !== null)
     {
-      if(tries >= max_tries)return;
-      var state = prev_state;
-      var connectBtn = document.querySelector('div.c-branding-button');
-      console.log("connectBtn");
-      console.log(connectBtn);
-      if(connectBtn != null)
-      {
-        connectBtn.click();
-        state = 0;
-      }
-      else
-      {
-        var closeBtn = document.querySelector('.mt-banner-fullscreen__button-close');
-        console.log("closeBtn");
-        console.log(closeBtn);
-        if(closeBtn != null)
-        {
-          closeBtn.click();
-          state = 2;
-        }
-        else
-        {
-          var banner = document.querySelector('div.content');
-          console.log("banner");
-          console.log(banner);
-          if(banner != null)
-          {
-            var videos = banner.getElementsByTagName('video');
-            console.log("videos");
-            console.log(videos);
-            for(var i = 0; i < videos.length(); i++)
-                videos[i].click();
-            state = 1;
-          }
-          else
-          {
-            var nextBtn = document.querySelector('div.interaction_button');
-            if(nextBtn != null)
-            {
-              state = 3;
-              nextBtn.click();
-            }
-          }
-        }
-      }
-      if(state <= prev_state)
-        tries++;
-      else
-        tries = 1;
-      //if(tries == max_tries)
-        //window.close();
-    }, 1500);
+      var rect = it.getBoundingClientRect();
+      ans[interesting_nodes[i]] = [rect.left, rect.top, rect.width, rect.height, it.outerHTML];
+    }
   }
-}).toString()+")()";
-document.body.appendChild(scriptElem);
+  console.log(JSON.stringify(ans));
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", "http://127.0.0.1:4747", true);
+  xhr.send(JSON.stringify(ans));
+}, 500);
