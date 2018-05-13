@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import subprocess, sys, socket, json, os.path
 
 if not os.path.exists("profile0"):
