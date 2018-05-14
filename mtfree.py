@@ -55,9 +55,11 @@ def main():
         for i in (LOGIN_BTN, VIDEO_ELEM, INTERACTION_BUTTON):
             if i in it:
                 x, y, w, h, s = it[i]
+                if '-v' in sys.argv: print(s)
                 x += w // 2
                 y += h // 2
                 xdotool("mousemove %d %d click 1"%(x, y))
+                break
 
 main()
 
