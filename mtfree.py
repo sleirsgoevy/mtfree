@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import subprocess, sys, socket, json, os.path
+import subprocess, sys, socket, json, os.path, urllib.request, signal, _thread
 
 if not os.path.exists("profile0"):
     if os.path.exists("README.md"):
@@ -14,6 +14,18 @@ firefox = subprocess.Popen("DISPLAY=:47 firefox --new-instance --profile profile
 
 #subprocess.Popen("DISPLAY=:47 x11vnc", shell=True)
 #subprocess.Popen("sleep 3; vncviewer 127.0.0.1", shell=True)
+
+import time
+
+def check_connection():
+    while True:
+        time.sleep(3)
+        with urllib.request.urlopen('http://ip-address.ru/show') as file:
+            data = file.read().split(b'.')
+        if len(data) == 4 and all(set(i) <= set(range(48, 58)) for i in data):
+            xvfb.kill()
+            subprocess.call(("rm", "-r", "profile"))
+            exit()
 
 x = socket.socket()
 x.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
@@ -35,20 +47,17 @@ def read_data():
     y.close()
     return json.loads(data.decode("utf-8"))
 
-read_data()
-
 def xdotool(data):
     subprocess.call("DISPLAY=:47 xdotool "+data, shell=True)
-
-xdotool("key F11")
-
-for i in range(3): read_data()
 
 LOGIN_BTN = 'div.c-branding-button:nth-child(2)'
 VIDEO_ELEM = 'div.c-video-layer:nth-child(4) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > video:nth-child(1)'
 INTERACTION_BUTTON = '.interaction_button'
 
 def main():
+    read_data()
+    xdotool("key F11")
+    for i in range(3): read_data()
     while True:
         it = read_data()
         if '://wi-fi.ru' in it['url'] or 'wi-fi.ru' not in it['url']: break
@@ -61,8 +70,5 @@ def main():
                 xdotool("mousemove %d %d click 1"%(x, y))
                 break
 
-main()
-
-xvfb.kill()
-
-subprocess.call(("rm", "-r", "profile"))
+_thread.start_new_thread(main, ())
+check_connection()
