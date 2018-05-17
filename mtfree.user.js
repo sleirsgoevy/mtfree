@@ -2,10 +2,10 @@
 // @name     MT_FREE
 // @version  1
 // @grant    none
-// @include  *
+// @include  *://*/*
 // ==/UserScript==
 
-var interesting_nodes = ['title', 'div.c-branding-button:nth-child(2)', 'div.c-video-layer:nth-child(4) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > video:nth-child(1)', '.interaction_button'];
+var interesting_nodes = ['title', 'div.c-branding-button:nth-child(2)', 'div.c-video-layer:nth-child(4) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > video:nth-child(1)', '.interaction_button', '.mt-banner-fullscreen__button-close', '.click-area', '.mt-banner-fullscreen__container-centered'];
 
 setInterval(function()
 {
