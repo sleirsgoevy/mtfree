@@ -73,7 +73,9 @@ def read_data():
     while len(data) < l:
         data += f.read(l-len(data))
     y.close()
-    return json.loads(data.decode("utf-8"))
+    data = json.loads(data.decode("utf-8"))
+    print(data)
+    return data
 
 def xdotool(data):
     subprocess.call("DISPLAY=:47 xdotool "+data, shell=True)
@@ -86,20 +88,24 @@ CLOSE_BTN = '.mt-banner-fullscreen__button-close'
 STATIC_AD = '.mt-banner-fullscreen__container-centered'
 
 def main():
+    tries = [[BANNER_ELEM, 5], [LOGIN_BTN, -1], [CLOSE_BTN, -1], [VIDEO_ELEM, 5], [INTERACTION_BUTTON, -1]]
     read_data()
     xdotool("key F11")
     for i in range(3): read_data()
     while True:
         it = read_data()
+        print(it)
         if '://wi-fi.ru' in it['url'] or 'wi-fi.ru' not in it['url']: break
-        for i in (BANNER_ELEM, LOGIN_BTN, CLOSE_BTN, VIDEO_ELEM, INTERACTION_BUTTON):
-            if i in it:
-                x, y, w, h, s = it[i]
+        for i in tries:
+            if i[1] != 0 and i[0] in it:
+                print(i[0])
+                x, y, w, h, s = it[i[0]]
                 if '-v' in sys.argv: print(s)
                 x += w // 2
                 y += h // 2
                 xdotool("mousemove %d %d click 1"%(x, y))
                 break
+                i[1] -= 1
 
 _thread.start_new_thread(main, ())
 _thread.start_new_thread(run_browser, ())
