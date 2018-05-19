@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export WPA_CLI="wpa_cli"
-export MTFREE="xvfb-run python3 mtfree.py"
+export MTFREE="python3 mtfree.py"
 
 eval "$WPA_CLI" | while true
 do
