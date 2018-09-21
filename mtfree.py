@@ -1,24 +1,7 @@
 #!/usr/bin/python3
-import subprocess, sys, socket, json, os.path, urllib.request, signal, _thread
-
-if not os.path.exists("profile0"):
-    if os.path.exists("README.md"):
-        subprocess.call(("cat", "README.md"))
-    if '-midori' in sys.argv:
-        os.mkdir("profile")
-        with open("profile/midori.txt", "w") as file: pass
-        subprocess.call('HOME="$(pwd)/profile" midori', shell=True)
-        os.rename("profile", "profile0")
-    else:
-        os.mkdir("profile0")
-        subprocess.call(("firefox", "--new-instance", "--profile", "profile0", "about:addons"))
+import subprocess, os.path, urllib.request, _thread, time, marionette
 
 xvfb = subprocess.Popen(("Xvfb", ":47"))
-
-#subprocess.Popen("DISPLAY=:47 x11vnc", shell=True)
-#subprocess.Popen("sleep 3; vncviewer 127.0.0.1", shell=True)
-
-import time
 
 def check_connection():
     while True:
@@ -34,50 +17,8 @@ def run_browser():
     while True:
         if os.path.exists("profile"):
             subprocess.call(("rm", "-r", "profile"))
-        subprocess.call(("cp", "-r", "profile0", "profile"))
-        if os.path.exists("profile/midori.txt"):
-            subprocess.call('DISPLAY=:47 HOME="$(pwd)/profile" midori -e Fullscreen http://auth.wi-fi.ru', shell=True)
-        else:
-            subprocess.call("DISPLAY=:47 firefox --new-instance --profile profile http://auth.wi-fi.ru", shell=True)
-
-x = socket.socket()
-x.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
-x.bind(('', 4747))
-x.listen(1)
-
-def read_data():
-    while True:
-        y = x.accept()[0]
-        f = y.makefile("rwb", 0)
-        if f.readline().startswith(b"OPTIONS "):
-            y.sendall(b"HTTP/1.1 200 OK\r\n")
-            while True:
-                ln = f.readline()
-                if ln.isspace(): break
-                k, v = ln.split(b": ", 1)
-                if k == b"Origin":
-                    y.sendall(b"Access-Control-Allow-Origin: "+v)
-                elif k == b"Access-Control-Request-Method":
-                    y.sendall(b"Access-Control-Allow-Methods: "+v)
-                elif k == b"Access-Control-Request-Headers":
-                    y.sendall(b"Access-Control-Allow-Headers: "+v)
-            y.sendall(b"Connection: close\r\n\r\n")
-            y.close()
-        else: break
-    while True:
-        ln = f.readline()
-        if ln.startswith(b"Content-Length: "):
-            l = int(ln[16:].decode('utf-8'))
-        elif ln.isspace(): break
-    data = b''
-    while len(data) < l:
-        data += f.read(l-len(data))
-    y.close()
-    data = json.loads(data.decode("utf-8"))
-    return data
-
-def xdotool(data):
-    subprocess.call("DISPLAY=:47 xdotool "+data, shell=True)
+        os.mkdir("profile")
+        subprocess.call("DISPLAY=:47 firefox --new-instance --profile profile -marionette", shell=True)
 
 BANNER_ELEM = '.click-area'
 LOGIN_BTN = 'div.c-branding-button:nth-child(2)'
@@ -87,22 +28,20 @@ CLOSE_BTN = '.mt-banner-fullscreen__button-close'
 STATIC_AD = '.mt-banner-fullscreen__container-centered'
 
 def main():
+    rpc = marionette.RPC()
+    rpc._version()
+    rpc.newSession()
+    rpc.navigate(url='http://ip-address.ru/show')
     tries = [[BANNER_ELEM, 5], [LOGIN_BTN, -1], [CLOSE_BTN, -1], [STATIC_AD, 5], [VIDEO_ELEM, 5], [INTERACTION_BUTTON, -1]]
-    read_data()
-    xdotool("key F11")
-    for i in range(3): read_data()
     while True:
-        it = read_data()
-        print(it)
-        if '://wi-fi.ru' in it['url'] or 'wi-fi.ru' not in it['url']: break
+        url = rpc.getCurrentURL()
+        print(url)
         for i in tries:
-            if i[1] != 0 and i[0] in it:
-                x, y, w, h, s = it[i[0]]
-                if i[1] > 0 and s.count('>') == 2 and s.count('<') == 2 and s.count('><') == 1: continue
+            if i[1] != 0:
+                try: elem = rpc.findElement(value=i[0], using='css selector')['value']['ELEMENT']
+                except: continue
+                rpc.elementClick(id=elem)
                 print(i[0])
-                x += w // 2
-                y += h // 2
-                xdotool("mousemove %d %d click 1"%(x, y))
                 i[1] -= 1
                 break
 
