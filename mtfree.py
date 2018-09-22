@@ -24,6 +24,7 @@ BANNER_ELEM = '.click-area'
 LOGIN_BTN = 'div.c-branding-button:nth-child(2)'
 VIDEO_ELEM = 'div.c-video-layer:nth-child(4) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > video:nth-child(1)'
 INTERACTION_BUTTON = '.interaction_button'
+INTERACTION_BUTTON_JOKE = '.interaction_button__joke'
 CLOSE_BTN = '.mt-banner-fullscreen__button-close'
 STATIC_AD = '.mt-banner-fullscreen__container-centered'
 
@@ -32,15 +33,15 @@ def main():
     rpc._version()
     rpc.newSession()
     rpc.navigate(url='http://ip-address.ru/show')
-    tries = [[BANNER_ELEM, 5], [LOGIN_BTN, -1], [CLOSE_BTN, -1], [STATIC_AD, 5], [VIDEO_ELEM, 5], [INTERACTION_BUTTON, -1]]
+    tries = [[BANNER_ELEM, 5], [LOGIN_BTN, -1], [CLOSE_BTN, -1], [STATIC_AD, 5], [VIDEO_ELEM, 5], [INTERACTION_BUTTON, -1], [INTERACTION_BUTTON, -1]]
     while True:
         url = rpc.getCurrentURL()
-        print(url)
         for i in tries:
             if i[1] != 0:
                 try: elem = rpc.findElement(value=i[0], using='css selector')['value']['ELEMENT']
                 except: continue
-                rpc.elementClick(id=elem)
+                try: rpc.elementClick(id=elem)
+                except: continue
                 print(i[0])
                 i[1] -= 1
                 break
