@@ -6,8 +6,10 @@ xvfb = subprocess.Popen(("Xvfb", ":47"))
 def check_connection():
     while True:
         time.sleep(3)
-        with urllib.request.urlopen('http://ip-address.ru/show') as file:
-            data = file.read().split(b'.')
+        try:
+            with urllib.request.urlopen('http://ip-address.ru/show') as file:
+                data = file.read().split(b'.')
+        except: data = []
         if len(data) == 4 and all(set(i) <= set(range(48, 58)) for i in data):
             xvfb.kill()
             subprocess.call(("rm", "-r", "profile"))
@@ -21,8 +23,8 @@ def run_browser():
         subprocess.call("DISPLAY=:47 firefox --new-instance --profile profile -marionette", shell=True)
 
 BANNER_ELEM = '.click-area'
-LOGIN_BTN = 'div.c-branding-button:nth-child(2)'
-VIDEO_ELEM = 'div.c-video-layer:nth-child(4) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > video:nth-child(1)'
+LOGIN_BTN = '.join' #'div.c-branding-button:nth-child(2)'
+VIDEO_ELEM = '.content video' #at depth 3 #'div.c-video-layer:nth-child(4) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > video:nth-child(1)'
 INTERACTION_BUTTON = '.interaction_button'
 INTERACTION_BUTTON_JOKE = '.interaction_button__joke'
 CLOSE_BTN = '.mt-banner-fullscreen__button-close'
@@ -33,15 +35,16 @@ def main():
     rpc._version()
     rpc.newSession()
     rpc.navigate(url='http://ip-address.ru/show')
-    tries = [[BANNER_ELEM, 5], [LOGIN_BTN, -1], [CLOSE_BTN, -1], [STATIC_AD, 5], [VIDEO_ELEM, 5], [INTERACTION_BUTTON, -1], [INTERACTION_BUTTON, -1]]
+    tries = [[LOGIN_BTN, -1], [BANNER_ELEM, 5], [CLOSE_BTN, -1], [STATIC_AD, 5], [VIDEO_ELEM, 5], [INTERACTION_BUTTON, -1], [INTERACTION_BUTTON, -1]]
     while True:
         url = rpc.getCurrentURL()
         for i in tries:
             if i[1] != 0:
                 try: elem = rpc.findElement(value=i[0], using='css selector')['value']['ELEMENT']
                 except: continue
+                print(i[0])
                 try: rpc.elementClick(id=elem)
-                except: continue
+                except Exception as e: continue
                 print(i[0])
                 i[1] -= 1
                 break
