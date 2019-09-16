@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 import subprocess, os.path, urllib.request, _thread, time, marionette
 
-xvfb = subprocess.Popen(("Xvfb", ":47"))
+#xvfb = subprocess.Popen(("Xvfb", ":47"))
+xvfb = subprocess.Popen(("Xvfb", ":47", "-screen", "0", "1024x768x24"))
 
 def check_connection():
     while True:
@@ -27,6 +28,7 @@ LOGIN_BTN = '.join' #'div.c-branding-button:nth-child(2)'
 VIDEO_ELEM = '.content video' #at depth 3 #'div.c-video-layer:nth-child(4) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > video:nth-child(1)'
 INTERACTION_BUTTON = '.interaction_button'
 INTERACTION_BUTTON_JOKE = '.interaction_button__joke'
+INTERACTION_BUTTON_2 = '.Button'
 CLOSE_BTN = '.mt-banner-fullscreen__button-close'
 STATIC_AD = '.mt-banner-fullscreen__container-centered'
 
@@ -35,7 +37,7 @@ def main():
     rpc._version()
     rpc.newSession()
     rpc.navigate(url='http://ip-address.ru/show')
-    tries = [[LOGIN_BTN, -1], [BANNER_ELEM, 5], [CLOSE_BTN, -1], [STATIC_AD, 5], [VIDEO_ELEM, 5], [INTERACTION_BUTTON, -1], [INTERACTION_BUTTON, -1]]
+    tries = [[LOGIN_BTN, -1], [BANNER_ELEM, 5], [CLOSE_BTN, -1], [STATIC_AD, 5], [VIDEO_ELEM, 5], [INTERACTION_BUTTON, -1], [INTERACTION_BUTTON_JOKE, -1], [INTERACTION_BUTTON_2, -1]]
     while True:
         url = rpc.getCurrentURL()
         for i in tries:
