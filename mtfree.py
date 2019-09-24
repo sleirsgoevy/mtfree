@@ -1,10 +1,18 @@
 #!/usr/bin/python3
-import subprocess, os.path, urllib.request, _thread, time, marionette
+import subprocess, sys, os.path, urllib.request, _thread, time, marionette
 
 #xvfb = subprocess.Popen(("Xvfb", ":47"))
 xvfb = subprocess.Popen(("Xvfb", ":47", "-screen", "0", "1024x768x24"))
 
+if '--debug' in sys.argv:
+    x11vnc = subprocess.Popen(("x11vnc", "-display", ":47", "-N", "-noshm"))
+
 def check_connection():
+    if '--debug' in sys.argv:
+        input()
+        xvfb.kill()
+        subprocess.call(("rm", "-r", "profile"))
+        exit()
     while True:
         time.sleep(3)
         try:
@@ -36,7 +44,7 @@ def main():
     rpc = marionette.RPC()
     rpc._version()
     rpc.newSession()
-    rpc.navigate(url='http://ip-address.ru/show')
+    rpc.navigate(url=('http://ip-address.ru/show' if '--direct' not in sys.argv else 'https://auth.wi-fi.ru'))
     tries = [[LOGIN_BTN, -1], [BANNER_ELEM, 5], [CLOSE_BTN, -1], [STATIC_AD, 5], [VIDEO_ELEM, 5], [INTERACTION_BUTTON, -1], [INTERACTION_BUTTON_JOKE, -1], [INTERACTION_BUTTON_2, -1]]
     while True:
         url = rpc.getCurrentURL()
