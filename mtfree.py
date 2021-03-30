@@ -39,12 +39,14 @@ def run_browser():
 BANNER_ELEM = '.click-area'
 LOGIN_BTN = '.join' #'div.c-branding-button:nth-child(2)'
 LOGIN_BTN_NEW = 'div.mt-col:nth-child(2) > button'
+LOGIN_BTN_BUS = '.btn-join'
 VIDEO_ELEM = '.content video' #at depth 3 #'div.c-video-layer:nth-child(4) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > video:nth-child(1)'
 INTERACTION_BUTTON = '.interaction_button'
 INTERACTION_BUTTON_QUIZ = '.interaction_button_quiz'
 INTERACTION_BUTTON_JOKE = '.interaction_button__joke'
 INTERACTION_BUTTON_2 = '.Button'
 CLOSE_BTN = '.mt-banner-fullscreen__button-close'
+CLOSE_BTN_FS = '.mtt-fullscreen-skip-cross'
 STATIC_AD = '.mt-banner-fullscreen__container-centered'
 
 def main():
@@ -52,13 +54,15 @@ def main():
     rpc._version()
     rpc.newSession()
     rpc.navigate(url=('http://ip-address.ru/show' if '--direct' not in sys.argv else 'https://auth.wi-fi.ru'))
-    tries = [[LOGIN_BTN, -1], [LOGIN_BTN_NEW, -1], [BANNER_ELEM, 5], [CLOSE_BTN, -1], [STATIC_AD, 5], [VIDEO_ELEM, 5], [INTERACTION_BUTTON, -1], [INTERACTION_BUTTON_QUIZ, -1], [INTERACTION_BUTTON_JOKE, -1], [INTERACTION_BUTTON_2, -1]]
+    tries = [[LOGIN_BTN, -1], [LOGIN_BTN_NEW, -1], [LOGIN_BTN_BUS, -1], [BANNER_ELEM, 5], [CLOSE_BTN, -1], [CLOSE_BTN_FS, -1], [STATIC_AD, 5], [VIDEO_ELEM, 5], [INTERACTION_BUTTON, -1], [INTERACTION_BUTTON_QUIZ, -1], [INTERACTION_BUTTON_JOKE, -1], [INTERACTION_BUTTON_2, -1]]
     while True:
         url = rpc.getCurrentURL()
         for i in tries:
             if i[1] != 0:
                 try: elem = next(iter(rpc.findElement(value=i[0], using='css selector')['value'].values()))
-                except: continue
+                except:
+                    #if i[0] == LOGIN_BTN_BUS: raise
+                    continue
                 print(i[0])
                 try: rpc.elementClick(id=elem)
                 except Exception as e: continue
